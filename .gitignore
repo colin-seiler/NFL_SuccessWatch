@@ -1,3 +1,4 @@
 data/
 notebooks_checkpoints/
 catboost_info/
+logs/
