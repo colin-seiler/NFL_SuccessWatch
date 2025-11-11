@@ -1,3 +1,9 @@
-notebooks_checkpoints/
-catboost_info/
-logs/
+# Ignore everything
+*
+
+# Keep these folders and their internal .gitignore
+!data/
+!logs/
+!src/
+!cfg/
+!notebooks/
