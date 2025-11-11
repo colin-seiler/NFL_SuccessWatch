@@ -3,6 +3,7 @@
 
 # Keep these folders and their internal .gitignore
 !data/
+!data/**
 !logs/
 !src/
 !cfg/
