@@ -1,0 +1,13 @@
+# Config for feature extraction
+file: clean_11_11.csv
+input_dir: "data/cleaned/pbp/"
+output_dir: "data/interim/pbp/"
+log_dir: "logs"
+features:
+  toggles:
+    build_off: true
+    build_addtl: true
+    build_fp_succ: true
+    build_f_succ: true
+  values:
+    win_trim: .00
