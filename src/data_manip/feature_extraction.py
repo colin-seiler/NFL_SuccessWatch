@@ -39,7 +39,6 @@ def fix_personnel(dataframe):
             parsed['OL'] = 5
         if parsed['QB'] == 0:
             parsed['QB'] = 1
-        print(parsed)
         return parsed
 
     df['personnel_dict'] = df['offense_personnel'].apply(parse_personnel)
@@ -55,24 +54,6 @@ def fix_personnel(dataframe):
     df = df.copy()
 
     return df
-
-
-
-#Helper Function to Fix Counts
-def update_personnel_counts(row):
-    personnel_titles = ['QB','OL','RB','TE','WR','OTHER']
-
-    for k,v in row['personnel_dict'].items():
-        if k in personnel_titles:
-            row[k] += v
-        else:
-            if k == 'QB':
-                row[k] = v
-            elif k == 'OL':
-                row[k] = v
-            else:
-                row['OTHER'] += v
-    return row
 
 #Trim DataFrame by certain win_perc
 def win_trim(dataframe, win_perc=0):
