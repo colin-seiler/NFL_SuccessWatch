@@ -19,29 +19,38 @@ def fix_personnel(dataframe):
         'G':'OL',
         'T':'OL',
         'FB':'RB',
+        'HB':'RB',
         'RB':'RB',
         'QB':'QB',
         'WR':'WR',
         'TE':'TE',
     }
 
-    df['personnel_dict'] = df['offense_personnel'].apply(lambda x: {personnel_dict.get(pos): int(count) for count, pos in (p.strip().split(' ') for p in x.split(','))})
-    df['personnel_dict'] = df['personnel_dict'].fillna('OTHER')
+    def parse_personnel(x):
+        parsed = {'OL': 0, 'RB': 0, 'QB': 0, 'WR': 0, 'TE': 0, 'OTHER': 0}
+        for part in x.split(','):
+            try:
+                count, pos = part.strip().split(' ')
+                pos = personnel_dict.get(pos.strip(), 'OTHER')
+                parsed[pos] += int(count)
+            except ValueError:
+                parsed['OTHER'] += 1
+        if parsed['OL'] == 0:
+            parsed['OL'] = 5
+        if parsed['QB'] == 0:
+            parsed['QB'] = 1
+        print(parsed)
+        return parsed
 
-    df['QB'] = 1
-    df['OL'] = 5
+    df['personnel_dict'] = df['offense_personnel'].apply(parse_personnel)
 
-    personnel_titles = ['RB','TE','WR','OTHER']
-
-    for pos in personnel_titles:
-        df[f'{pos}'] = 0
-
-    df = df.apply(update_personnel_counts, axis=1)
-    df = df.drop(columns = ['personnel_dict','offense_personnel'])
+    expanded = pd.DataFrame(df['personnel_dict'].tolist(), index=df.index).fillna(0)
+    df = pd.concat([df, expanded], axis=1)
     df = df.copy()
 
     df['extra_lineman_flag'] = np.where(df['OL'] > 5, 1, 0)
     df['bigs'] = df['OL']+df['TE']-5
+
     df['personnel_num'] = df.apply(lambda x: f'{x['bigs']}{x['RB']}', axis=1)
     df = df.copy()
 
@@ -51,7 +60,7 @@ def fix_personnel(dataframe):
 
 #Helper Function to Fix Counts
 def update_personnel_counts(row):
-    personnel_titles = ['RB','TE','WR','OTHER']
+    personnel_titles = ['QB','OL','RB','TE','WR','OTHER']
 
     for k,v in row['personnel_dict'].items():
         if k in personnel_titles:
@@ -87,6 +96,19 @@ def addtl_features(dataframe):
 
 def formation_personnel_success(dataframe):
     df = dataframe.copy()
+
+    formation_map = {
+        'I_FORM':'UNDER_CENTER',
+        'UNDER CENTER':'UNDER_CENTER',
+        'SINGLEBACK':'UNDER_CENTER',
+        'JUMBO':'UNDER_CENTER',
+        'PISTOL':'PISTOL',
+        'EMPTY':'SHOTGUN',
+        'SHOTGUN':'SHOTGUN',
+        'WILDCAT':'SHOTGUN'
+    }
+
+    df['offense_formation'] = df['offense_formation'].map(formation_map)
 
     succ = (
         df.groupby(['offense_formation', 'personnel_num'])
@@ -146,7 +168,7 @@ def engineer_features(cfg):
     read_file = input_dir+filename
     try:
         print(f"📂 Loading: {read_file}")
-        df = pd.read_csv(read_file, low_memory=False)
+        df = pd.read_csv(read_file, dtype={'personnel_num': 'string'}, low_memory=False)
         print("✅ All files loaded!")
     except:
         print('❌ Files not loaded, please try again')
@@ -184,6 +206,7 @@ def engineer_features(cfg):
     
 
 if __name__ == "__main__":
+    #CFG file is located at cfg/features.yml
     with open("cfg/features.yml") as f:
         cfg = yaml.safe_load(f)
 
