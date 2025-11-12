@@ -3,11 +3,17 @@ file: clean_11_11.csv
 input_dir: "data/cleaned/pbp/"
 output_dir: "data/interim/pbp/"
 log_dir: "logs"
+
+bin_size: 5
+bin_count: 5
+
 features:
   toggles:
     build_off: true
-    build_addtl: true
+    build_ydstosuccess: true
     build_fp_succ: true
     build_f_succ: true
+    build_yardbins: true
+    build_prev: true
   values:
     win_trim: .00
