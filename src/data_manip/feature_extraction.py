@@ -62,12 +62,17 @@ def win_trim(dataframe, win_perc=0):
     df = df.copy()
 
 #Add ydstoscucces
-def addtl_features(dataframe):
+def yardstosuccess(dataframe):
     df = dataframe.copy()
 
     #Yards to success, a combination of down and yards
-    df['ydstosuccess'] = np.where(df['down']==1, df['ydstogo']*.5, np.where(df['down']==2, df['ydstogo']*.7, df['ydstogo']))
+    df['ydstosuccess'] = np.where(df['down']==1, df['ydstogo']*.4, np.where(df['down']==2, df['ydstogo']*.6, df['ydstogo']))
+    df = df.copy()
+    
+    return df
 
+def prev_success(dataframe):
+    df = dataframe.copy()
     #Define previous success based on previous plays success
     df['previous_success'] = df.groupby(['nflverse_game_id','fixed_drive'])['success'].shift(1)
     df['previous_success'] = df['previous_success'].fillna(0)
@@ -137,6 +142,16 @@ def formation_success(dataframe):
 
     return df
 
+def yardage_bins(dataframe, bin_size, bin_count):
+    df = dataframe.copy()
+
+    bin_count-=1
+    yard_bins = list(np.arange(0, bin_count * bin_size + bin_size, bin_size))+[np.inf]
+    yard_labels = [f'{str(yard_bins[i])}to{str(yard_bins[i+1])}' for i in range(len(yard_bins)-1)]
+
+    df['yard_group'] = pd.cut(df['ydstosuccess'], bins=yard_bins, labels=yard_labels, right=False)
+    return df
+
 def engineer_features(cfg):
     toggles = cfg["features"]["toggles"]
     vals = cfg["features"]["values"]
@@ -145,6 +160,9 @@ def engineer_features(cfg):
     input_dir = cfg['input_dir']
     output_dir = cfg['output_dir']
     log_dir = cfg['log_dir']
+
+    bin_size = cfg['bin_size']
+    bin_count = cfg['bin_count']
 
     read_file = input_dir+filename
     try:
@@ -159,9 +177,9 @@ def engineer_features(cfg):
         print(f'🏈 Building Offense Personnel Counts')
         df = fix_personnel(df)
         df = df.copy()
-    if toggles.get("build_addtl", False):
-        print(f'🏈 Building Offense Addtl Features')
-        df = addtl_features(df)
+    if toggles.get("build_ydstosuccess", False):
+        print(f'🏈 Building "ydstosuccess" Feature')
+        df = yardstosuccess(df)
         df = df.copy()
     if toggles.get("build_fp_succ", False):
         print(f'🏈 Building Formation Personnel Success and EPA')
@@ -171,6 +189,16 @@ def engineer_features(cfg):
         print(f'🏈 Building Formation Success and EPA')
         df = formation_success(df)
         df = df.copy()
+    if toggles.get("build_yardbins", False):
+        print(f'🏈 Building Yard Bins')
+        df = yardage_bins(df, bin_size, bin_count)
+        df = df.copy()
+    if toggles.get("build_prev", False):
+        print(f'🏈 Building Previous Success')
+        df = prev_success(df)
+        df = df.copy()
+    
+
     if vals.get("win_trim", 0):
         print(f'🏈 Trimming plays based on WP: {vals.get("win_trim")}')
         df = win_trim(df)
