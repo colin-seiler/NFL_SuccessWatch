@@ -13,7 +13,7 @@ warnings.simplefilter(action='ignore', category=pd.errors.DtypeWarning)
 def fix_personnel(dataframe):
     df = dataframe.copy()
 
-    personnel_dict = {
+    off_personnel_dict = {
         'OL':'OL',
         'C':'OL',
         'G':'OL',
@@ -26,24 +26,55 @@ def fix_personnel(dataframe):
         'TE':'TE',
     }
 
-    def parse_personnel(x):
-        parsed = {'OL': 0, 'RB': 0, 'QB': 0, 'WR': 0, 'TE': 0, 'OTHER': 0}
+    def_personnel_dict = {
+        'DL':'DL',
+        'DT':'DL',
+        'DE':'DL',
+        'NT':'DL',
+        'LB':'LB',
+        'OLB':'LB',
+        'ILB':'LB',
+        'MLB':'LB',
+        'DB':'DB',
+        'CB':'DB',
+        'FS':'DB',
+        'SS':'DB',
+    }
+
+    def parse_off_personnel(x):
+        parsed = {'OL': 0, 'RB': 0, 'QB': 0, 'WR': 0, 'TE': 0, 'O_OTHER': 0}
         for part in x.split(','):
             try:
                 count, pos = part.strip().split(' ')
-                pos = personnel_dict.get(pos.strip(), 'OTHER')
+                pos = off_personnel_dict.get(pos.strip(), 'O_OTHER')
                 parsed[pos] += int(count)
             except ValueError:
-                parsed['OTHER'] += 1
+                parsed['O_OTHER'] += 1
         if parsed['OL'] == 0:
             parsed['OL'] = 5
         if parsed['QB'] == 0:
             parsed['QB'] = 1
         return parsed
+    
+    def parse_def_personnel(x):
+        parsed = {'DL': 0, 'LB': 0, 'DB': 0, 'D_OTHER': 0}
+        for part in x.split(','):
+            try: 
+                count,pos = part.strip().split(' ')
+                pos = def_personnel_dict.get(pos.strip(), 'D_OTHER')
+                parsed[pos] += int(count)
+            except ValueError:
+                parsed['D_OTHER'] += 1
+        return parsed 
 
-    df['personnel_dict'] = df['offense_personnel'].apply(parse_personnel)
+    df['off_personnel_dict'] = df['offense_personnel'].apply(parse_off_personnel)
+    df['def_personnel_dict'] = df['defense_personnel'].apply(parse_def_personnel)
 
-    expanded = pd.DataFrame(df['personnel_dict'].tolist(), index=df.index).fillna(0)
+    expanded = pd.DataFrame(df['off_personnel_dict'].tolist(), index=df.index).fillna(0)
+    df = pd.concat([df, expanded], axis=1)
+    df = df.copy()
+
+    expanded = pd.DataFrame(df['def_personnel_dict'].tolist(), index=df.index).fillna(0)
     df = pd.concat([df, expanded], axis=1)
     df = df.copy()
 
@@ -173,8 +204,8 @@ def engineer_features(cfg):
         print('❌ Files not loaded, please try again')
         sys.exit()
 
-    if toggles.get("build_off", False):
-        print(f'🏈 Building Offense Personnel Counts')
+    if toggles.get("build_personnel", False):
+        print(f'🏈 Building Offense/Defense Personnel Counts')
         df = fix_personnel(df)
         df = df.copy()
     if toggles.get("build_ydstosuccess", False):
