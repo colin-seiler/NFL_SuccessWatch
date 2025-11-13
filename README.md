@@ -1,6 +1,46 @@
-# Links
-Kaggle Webpage - https://www.kaggle.com/competitions/nfl-big-data-bowl-2023/data?select=week8.csv
+Data should all be sourced from NFLVerse package in R using the nflreadr library. Our data will be build from the load_participation functions sourcing data from 2016 through 2024.
 
-Data Download - https://www.dropbox.com/scl/fi/c2zis01r593k35vq56fo6/nfl-big-data-bowl-2023.zip?rlkey=mbhflxpot3psg871m471qgu6m&st=q9vqu2s4&dl=0
+You can use the following SCRIPT in R to access the needed CSV files
+```R
+install.packages(c("nflreadr", "nflfastR", "nflplotR", "nfl4th"))
 
-Example Presentation - https://www.kaggle.com/datasets/benwendel/wendel-big-data-bowl-2025
+library(nflreadr)
+
+# Check for pbp_data folder and create a folder to store the data if DNE
+if (!dir.exists("pbp_data")) {
+  dir.create("pbp_data")
+}
+
+years <- 2016:2024
+
+for (year in years) {
+  pbp_data <- load_participation(seasons = TRUE, include_pbp = TRUE)
+
+  assign(paste0("pbp_", year), pbp_data)
+  
+  # Save as CSV file
+  filename <- paste0("pbp_data/pbp_", year, ".csv")
+  write.csv(pbp_data, filename, row.names = FALSE)
+  
+  cat("Saved:", filename, "\n\n")
+}
+```
+Once the CSVs are downloaded, add them to the data/raw/pbp_data folder as individual files.
+
+In bash, navigate to the project folder using cd where you replace path\to\ with your relevant path.
+
+```Bash
+cd path\to\eas_508_project
+```
+Once you are in the correct folder, run the following code in bash:
+
+```Bash
+python src/data_manip/cleaning.py
+python src/data_manip/feature_extraction.py
+```
+
+The cleaned and feature added CSV files will be added to the cleaned and interim folders and you can change where they go via cfg/features.yml. Clean will be updated to use cfg/clean.yml in the future.
+
+You can then load the interim dataset and perform more data engineering to prepare it for models or to add more features. Working features will be added to the feature_extraction.py in the future.
+
+We need to use Divide and Conquer with differing models to provide a proper prediction, our current predictions have not come close enough to working
