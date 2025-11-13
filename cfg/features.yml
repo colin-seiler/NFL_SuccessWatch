@@ -9,7 +9,7 @@ bin_count: 5
 
 features:
   toggles:
-    build_off: true
+    build_personnel: true
     build_ydstosuccess: true
     build_fp_succ: true
     build_f_succ: true
