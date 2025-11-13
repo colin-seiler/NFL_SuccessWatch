@@ -183,6 +183,21 @@ def yardage_bins(dataframe, bin_size, bin_count):
     df['yard_group'] = pd.cut(df['ydstosuccess'], bins=yard_bins, labels=yard_labels, right=False)
     return df
 
+def home_fix(dataframe):
+    df = dataframe.copy()
+
+    df['home'] = df['posteam_type'].map({'home':1,'away':0})
+
+    return df
+
+def spread_fix(dataframe):
+    df = dataframe.copy()
+
+    df['spread'] = np.where(df['posteam_type'] == 1, df['spread_line'], -df['spread_line'])
+
+    return df
+
+
 def engineer_features(cfg):
     toggles = cfg["features"]["toggles"]
     vals = cfg["features"]["values"]
@@ -228,12 +243,20 @@ def engineer_features(cfg):
         print(f'🏈 Building Previous Success')
         df = prev_success(df)
         df = df.copy()
+    if toggles.get("build_home", False):
+        print(f'🏈 Building Home Feature')
+        df = home_fix(df)
+        df = df.copy()
+    if toggles.get("build_spread", False):
+        print(f'🏈 Building Spread Feature')
+        df = spread_fix(df)
+        df = df.copy()
     
-
     if vals.get("win_trim", 0):
         print(f'🏈 Trimming plays based on WP: {vals.get("win_trim")}')
-        df = win_trim(df)
+        df = win_trim(df, vals.get("win_trim"))
         df = df.copy()
+        
 
     try:
         timestamp = datetime.now().strftime("%m_%d")
