@@ -15,5 +15,7 @@ features:
     build_f_succ: true
     build_yardbins: true
     build_prev: true
+    build_home: true
+    build_spread: true
   values:
     win_trim: .00
