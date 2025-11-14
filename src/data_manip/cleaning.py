@@ -38,8 +38,9 @@ def clean_data(off_personnel=True, add_features=True, off_form=True, off_form_pe
     spike = df['qb_spike'] == 0
     pt2 = df['down'].notna()
     succ = df['success'].notna()
+    definbox = df['defenders_in_box'].notna()
 
-    df = df[pt2 & formation & personnel & no_play & kneel & spike & succ].drop(columns=['qb_kneel','qb_spike'])
+    df = df[pt2 & formation & personnel & no_play & kneel & spike & succ & definbox].drop(columns=['qb_kneel','qb_spike'])
     df = df.copy()
 
     # Drop columns with >95% missing data

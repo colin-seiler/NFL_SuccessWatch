@@ -1,5 +1,5 @@
 # Config for feature extraction
-file: clean_11_11.csv
+file: clean_11_13.csv
 input_dir: "data/cleaned/pbp/"
 output_dir: "data/interim/pbp/"
 log_dir: "logs"
