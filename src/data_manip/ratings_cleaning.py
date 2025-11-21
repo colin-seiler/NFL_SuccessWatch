@@ -14,24 +14,27 @@ OUT_PATH = "data/interim/madden/"
 PBP = "/*.xlsx"
 
 def load_files():
-        years = []
+    try:
         dfs = []
         for file in sorted(glob.glob(IN_PATH+PBP)):
             print(f"📂 Loading: {file}")
             temp = pd.read_excel(file)
             year = file.strip().split('.')[0][-2:]
-            years.append(year)
-            dfs.append(temp)
+            dfs.append([year, temp])
 
         print("✅ All files loaded!")
-        return dfs, years
-    # except: 
-    #     print('❌ Files not loaded, please try again')
-    #     sys.exit()
+        return dfs
+    except: 
+        print('❌ Files not loaded, please try again')
+        sys.exit()
 
 def clean_data(files):
     temp_files = []
-    for file in files:
+
+    for item in files:
+        year = item[0]
+        file = item[1]
+
         temp_df = pd.DataFrame()
         if 'Team' in file.columns:
             temp_df['team'] = file['Team']
@@ -57,20 +60,22 @@ def clean_data(files):
             temp_df['ovr'] = file['OVR']
         else:
             temp_df['ovr'] = file['Overall']
+
+        temp_df['year'] = '20'+year
         
-        temp_files.append(temp_df)
+        temp_files.append(temp_df[['year','name','team','position','ovr']])
     
     return temp_files
     
         
 if __name__ == "__main__":
-    dfs, years = load_files()
+    dfs = load_files()
     out_dfs = clean_data(dfs)
-    for idx, out in enumerate(out_dfs):
-        file_out = OUT_PATH+f'madden{years[idx]}.csv'
-        out.to_csv(file_out, index=False)
-        print(f"💾 Saved {file_out} to: {OUT_PATH}")
 
+    out = pd.DataFrame()
+    for item in out_dfs:
+        out = pd.concat([out, item])
 
-
-    
+    file_out = OUT_PATH+f'madden_ratings.csv'
+    out.to_csv(file_out, index=False)
+    print(f"💾 Saved madden_ratings.csv to: {OUT_PATH}")
