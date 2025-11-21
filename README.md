@@ -35,11 +35,14 @@ cd path\to\eas_508_project
 Once you are in the correct folder, run the following code in bash:
 
 ```Bash
-python src/data_manip/cleaning.py
-python src/data_manip/feature_extraction.py
+python src/data_manip/cleaning_pbp.py 
+python src/data_manip/cleaning_ratings.py
+python src/data_manip/combine_madden_ratings.py
+python src/data_manip/extract_features.py
+python src/data_manip/create_pipeline
 ```
 
-The cleaned and feature added CSV files will be added to the cleaned and interim folders and you can change where they go via cfg/features.yml. Clean will be updated to use cfg/clean.yml in the future.
+Use pipeline.yml to update which features to use, categorize, and scale. Enter model type as well to make sure features are presented correctly for each model.
 
 You can then load the interim dataset and perform more data engineering to prepare it for models or to add more features. Working features will be added to the feature_extraction.py in the future.
 
