@@ -8,5 +8,6 @@
 !src/
 !src/**
 !cfg/
+!cfg/**
 !notebooks/
 !notebooks/**
