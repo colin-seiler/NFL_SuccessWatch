@@ -1,7 +1,8 @@
 # Config for feature extraction
-file: clean_11_13.csv
-input_dir: "data/cleaned/pbp/"
-output_dir: "data/interim/pbp/"
+file: clean_11_21.csv
+input_dir: "data/cleaned/"
+players_dir: "data/processed/matched_ratings.csv"
+output_dir: "data/interim/"
 log_dir: "logs"
 
 bin_size: 5
@@ -17,5 +18,6 @@ features:
     build_prev: true
     build_home: true
     build_spread: true
+    build_players: true
   values:
     win_trim: .00
