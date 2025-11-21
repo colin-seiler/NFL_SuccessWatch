@@ -1,0 +1,75 @@
+file: featured_11_21.csv
+input_dir: "data/interim/"
+output_dir: "data/processed/"
+log_dir: "logs"
+model_type: "rdf" #Must be log, rdf, gd
+
+features:
+  keep:
+    - nflverse_game_id
+    - play_id
+    - season
+    - down
+    - ydstogo
+    - ydstosuccess
+    - yard_group
+    - yardline_100
+    - previous_success
+    - offense_formation
+    - defenders_in_box
+    - personnel_num
+    - extra_lineman_flag
+    - QB
+    - RB
+    - TE
+    - WR
+    - OL
+    - O_OTHER
+    - DL
+    - LB
+    - DB
+    - D_OTHER
+    - home
+    - score_differential
+    - spread
+    - total_line
+    - qtr
+    - quarter_seconds_remaining
+    - QB1
+    - QB2 
+    - QB3 
+    - RB1 
+    - RB2 
+    - RB3 
+    - RB4 
+    - WR1 
+    - WR2 
+    - WR3 
+    - WR4 
+    - WR5 
+    - TE1 
+    - TE2 
+    - TE3 
+    - TE4
+    - success
+  
+  drop:
+    - season
+    - personnel_num
+    - extra_lineman_flag
+    - yard_group
+
+  categorical:
+    - offense_formation
+
+  normalize:
+    - ydstogo
+    - ydstosuccess
+    - yardline_100
+    - score_differential
+    - spread
+    - total_line
+    - quarter_seconds_remaining
+
+  target:
+    - success
