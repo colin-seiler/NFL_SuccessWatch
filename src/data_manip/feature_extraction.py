@@ -12,7 +12,6 @@ warnings.simplefilter(action='ignore', category=pd.errors.DtypeWarning)
 
 def fix_personnel(dataframe):
     df = dataframe.copy()
-
     off_personnel_dict = {
         'OL':'OL',
         'C':'OL',
@@ -25,7 +24,6 @@ def fix_personnel(dataframe):
         'WR':'WR',
         'TE':'TE',
     }
-
     def_personnel_dict = {
         'DL':'DL',
         'DT':'DL',
@@ -197,6 +195,54 @@ def spread_fix(dataframe):
 
     return df
 
+def build_players(dataframe, pid_dataframe):
+    df = dataframe.copy()
+    pid_df = pid_dataframe.copy()
+
+    players_pos_map = dict(zip(pid_df['player_id'], pid_df['position']))
+    players_rating_map = pid_df.set_index(['player_id','year'])['ovr'].to_dict()
+
+    MAX_SLOTS = {
+    "QB": df['QB'].max(),
+    "RB": df['RB'].max(),
+    "WR": df['WR'].max(),
+    "TE": df['TE'].max(),
+    "OL": 0,
+    "DL": 0,
+    "LB": 0,
+    "DB": 0
+    }
+
+    def helper(row):
+        players = row['offense_players']
+        year = row['season']
+        player_ids = players.strip().split(';')
+
+        groups = {pos: [] for pos in MAX_SLOTS.keys() if MAX_SLOTS.get(pos)}
+
+        for pid in player_ids:
+            pid = pid.strip()
+            pos = players_pos_map.get(pid)
+            if pos in groups:
+                groups[pos].append(players_rating_map.get((pid, year), -1))
+
+        for pos, slots in groups.items():
+            groups[pos] = sorted(slots, reverse=True)
+
+        out = {}
+        for pos, max_n in MAX_SLOTS.items():
+            for i in range(max_n):
+                out[f"{pos}{i+1}"] = groups[pos][i] if i < len(groups[pos]) else 0
+
+        return out
+    
+    df['players_in_pos_dict'] = df.apply(helper, axis=1)
+
+    expanded = pd.DataFrame(df['players_in_pos_dict'].tolist(), index=df.index).fillna(0)
+    df = pd.concat([df, expanded], axis=1)
+    df = df.copy()
+
+    return df
 
 def engineer_features(cfg):
     toggles = cfg["features"]["toggles"]
@@ -205,6 +251,7 @@ def engineer_features(cfg):
     filename = cfg['file']
     input_dir = cfg['input_dir']
     output_dir = cfg['output_dir']
+    players_dir = cfg['players_dir']
     log_dir = cfg['log_dir']
 
     bin_size = cfg['bin_size']
@@ -214,6 +261,7 @@ def engineer_features(cfg):
     try:
         print(f"📂 Loading: {read_file}")
         df = pd.read_csv(read_file, dtype={'personnel_num': 'string'}, low_memory=False)
+        pid_df = pd.read_csv(players_dir, dtype={'year':'Int64','ovr':'Int64'}, low_memory=False)
         print("✅ All files loaded!")
     except:
         print('❌ Files not loaded, please try again')
@@ -251,12 +299,15 @@ def engineer_features(cfg):
         print(f'🏈 Building Spread Feature')
         df = spread_fix(df)
         df = df.copy()
-    
+    if toggles.get("build_players", False):
+        print(f'🏈 Building Player Columns')
+        df = build_players(df, pid_df)
+        df = df.copy()
+
     if vals.get("win_trim", 0):
         print(f'🏈 Trimming plays based on WP: {vals.get("win_trim")}')
         df = win_trim(df, vals.get("win_trim"))
         df = df.copy()
-        
 
     try:
         timestamp = datetime.now().strftime("%m_%d")
