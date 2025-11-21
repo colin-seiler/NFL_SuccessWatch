@@ -10,7 +10,7 @@ warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
 warnings.simplefilter(action='ignore', category=pd.errors.DtypeWarning)
 
 IN_PATH = "data/raw/madden/"
-OUT_PATH = "data/interim/madden/"
+OUT_PATH = "data/interim/"
 PBP = "/*.xlsx"
 
 def load_files():
@@ -61,7 +61,7 @@ def clean_data(files):
         else:
             temp_df['ovr'] = file['Overall']
 
-        temp_df['year'] = '20'+year
+        temp_df['year'] = '20'+str(int(year)-1)
         
         temp_files.append(temp_df[['year','name','team','position','ovr']])
     
