@@ -9,9 +9,9 @@ import warnings
 warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
 warnings.simplefilter(action='ignore', category=pd.errors.DtypeWarning)
 
-MADDEN_PATH = "data/interim/madden/madden_ratings.csv"
+MADDEN_PATH = "data/interim/madden_ratings.csv"
 PLAYER_PATH = "data/raw/players/nfl_players_2016_2024.csv"
-OUT_PATH = "data/processed/player_ratings/matched_ratings.csv"
+OUT_PATH = "data/processed/matched_ratings.csv"
 MADDEN_TO_UNI = {
     "QB": "QB",
     "HB": "RB",
@@ -162,7 +162,7 @@ if __name__ == "__main__":
 
     try:
         players_with_ratings.to_csv(OUT_PATH, index=False)
-        print(f"💾 Saved players_with+ratigns to: {OUT_PATH}")
+        print(f"💾 Saved players_with ratings to: {OUT_PATH}")
     except:
         print("Unable to save CSV to output path specified")
 
