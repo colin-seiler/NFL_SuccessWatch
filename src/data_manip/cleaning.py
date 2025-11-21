@@ -11,7 +11,7 @@ warnings.simplefilter(action='ignore', category=pd.errors.DtypeWarning)
 
 
 IN_PATH = "data/raw/pbp_data/"
-OUT_PATH = "data/cleaned/pbp/"
+OUT_PATH = "data/cleaned/"
 PBP = "/*.csv"
 
 def clean_data(off_personnel=True, add_features=True, off_form=True, off_form_personnel=True, wp_trim=0, input_path=IN_PATH+PBP):
@@ -39,8 +39,9 @@ def clean_data(off_personnel=True, add_features=True, off_form=True, off_form_pe
     pt2 = df['down'].notna()
     succ = df['success'].notna()
     definbox = df['defenders_in_box'].notna()
+    off_players = df['offense_players'].notna()
 
-    df = df[pt2 & formation & personnel & no_play & kneel & spike & succ & definbox].drop(columns=['qb_kneel','qb_spike'])
+    df = df[pt2 & formation & personnel & no_play & kneel & spike & succ & definbox & off_players].drop(columns=['qb_kneel','qb_spike'])
     df = df.copy()
 
     # Drop columns with >95% missing data
@@ -48,7 +49,7 @@ def clean_data(off_personnel=True, add_features=True, off_form=True, off_form_pe
     df = df.drop(columns=missing_ratio[missing_ratio > 0.8].index)
     df = df.copy()
 
-    useless_keywords = ['players','ngs','air','time','pressure','route',
+    useless_keywords = ['ngs','air','time','pressure','route',
                         'old','total_home','total_away','yac','safety',
                         'timeout','opp','extra_point','two_point','vegas',
                         'kickoff','punt','incomplete','touchback','fumble',
