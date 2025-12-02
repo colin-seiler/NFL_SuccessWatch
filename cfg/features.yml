@@ -2,6 +2,7 @@
 file: clean_11_21.csv
 input_dir: "data/cleaned/"
 players_dir: "data/processed/matched_ratings.csv"
+teams_dir: "data/raw/season/team_year_pass_run_stats.csv"
 output_dir: "data/interim/"
 log_dir: "logs"
 
@@ -19,5 +20,6 @@ features:
     build_home: true
     build_spread: true
     build_players: true
+    build_teams: true
   values:
     win_trim: .00

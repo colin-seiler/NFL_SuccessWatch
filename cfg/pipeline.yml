@@ -1,8 +1,8 @@
-file: featured_11_21.csv
+file: featured_12_02.csv
 input_dir: "data/interim/"
 output_dir: "data/processed/"
 log_dir: "logs"
-model_type: "rdf" #Must be log, rdf, gd
+model_type: "gd" #Must be log, rdf, gd
 
 features:
   keep:
@@ -51,25 +51,50 @@ features:
     - TE2 
     - TE3 
     - TE4
+    - pass_yards_season
+    - rush_yards_season
+    - pass_run_ratio
     - success
   
   drop:
+    - ydstogo
+    - yard_group
+    - previous_success
+    - QB
+    - QB3
+    - RB3
+    - RB4
+    - TE3
+    - TE4
+    - WR4
+    - WR5
+    - O_OTHER
+    - D_OTHER
     - season
     - personnel_num
     - extra_lineman_flag
-    - yard_group
 
   categorical:
     - offense_formation
 
   normalize:
-    - ydstogo
     - ydstosuccess
     - yardline_100
     - score_differential
     - spread
     - total_line
-    - quarter_seconds_remaining
+    - QB1
+    - QB2
+    - RB1 
+    - RB2
+    - WR1 
+    - WR2 
+    - WR3
+    - TE1 
+    - TE2 
+    - TE3 
+    - pass_yards_season
+    - rush_yards_season
 
   target:
     - success
