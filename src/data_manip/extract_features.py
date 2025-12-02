@@ -223,7 +223,7 @@ def build_players(dataframe, pid_dataframe):
             pid = pid.strip()
             pos = players_pos_map.get(pid)
             if pos in groups:
-                groups[pos].append(players_rating_map.get((pid, year), -1))
+                groups[pos].append(players_rating_map.get((pid, year), 50)) #fill in missing with 50 player
 
         for pos, slots in groups.items():
             groups[pos] = sorted(slots, reverse=True)
@@ -243,6 +243,22 @@ def build_players(dataframe, pid_dataframe):
 
     return df
 
+def build_teams(dataframe, team_stat_dataframe):
+    df = dataframe.copy()
+    t_df = team_stat_dataframe.copy()
+
+    t_df = t_df.rename(columns={
+        'pass_attempts':'pass_attempts_season',
+        'rush_attempts':'rush_attempts_season',
+        'pass_yards':'pass_yards_season',
+        'rush_yards':'rush_yards_season'
+    })
+
+    t_df.reset_index()
+
+    df = df.merge(t_df, how='left', on=['season','posteam'])
+    return df
+
 def engineer_features(cfg):
     toggles = cfg["features"]["toggles"]
     vals = cfg["features"]["values"]
@@ -251,6 +267,7 @@ def engineer_features(cfg):
     input_dir = cfg['input_dir']
     output_dir = cfg['output_dir']
     players_dir = cfg['players_dir']
+    teams_dir = cfg['teams_dir']
     log_dir = cfg['log_dir']
 
     bin_size = cfg['bin_size']
@@ -261,6 +278,7 @@ def engineer_features(cfg):
         print(f"📂 Loading: {read_file}")
         df = pd.read_csv(read_file, dtype={'personnel_num': 'string'}, low_memory=False)
         pid_df = pd.read_csv(players_dir, dtype={'year':'Int64','ovr':'Int64'}, low_memory=False)
+        team_df = pd.read_csv(teams_dir, low_memory=False)
         print("✅ All files loaded!")
     except:
         print('❌ Files not loaded, please try again')
@@ -301,6 +319,10 @@ def engineer_features(cfg):
     if toggles.get("build_players", False):
         print(f'🏈 Building Player Columns')
         df = build_players(df, pid_df)
+        df = df.copy()
+    if toggles.get("build_teams", False):
+        print(f'🏈 Building Team Columns')
+        df = build_teams(df, team_df)
         df = df.copy()
 
     if vals.get("win_trim", 0):
