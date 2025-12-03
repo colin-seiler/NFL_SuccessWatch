@@ -1,5 +1,6 @@
 # Ignore everything
 *
+src/models/__pycache__
 
 # Keep these folders and their internal .gitignore
 !data/
