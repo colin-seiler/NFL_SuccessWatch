@@ -59,7 +59,7 @@ def model_train(train, test, file_number):
     plt.savefig(f"plots/shap_gd_34_{file_number}.png", dpi=300, bbox_inches='tight')
     plt.close()
 
-    test.to_csv(f'data/evals/gd_preds_{file_number}.csv')
+    test.to_csv(f'data/evals/gd_preds_{file_number}.csv', index=False)
     X, Y, _ = roc_curve(test_y, y_proba)
 
     plt.figure(figsize=(8,6))

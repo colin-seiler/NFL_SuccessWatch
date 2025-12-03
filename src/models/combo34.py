@@ -78,5 +78,3 @@ if __name__ == '__main__':
         ensemble_test(p_log,p_gd,p_rdf,test_log)
 
     print(f'Doc Save Key is: {file_number}')
-
-    
