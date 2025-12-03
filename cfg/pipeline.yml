@@ -2,7 +2,7 @@ file: featured_12_02.csv
 input_dir: "data/interim/"
 output_dir: "data/processed/"
 log_dir: "logs"
-model_type: "gd" #Must be log, rdf, gd
+model_type: "rdf" #Must be log, rdf, gd
 
 features:
   keep:
@@ -54,10 +54,13 @@ features:
     - pass_yards_season
     - rush_yards_season
     - pass_run_ratio
+    - conversion_rate_season
+    - sack_rate_season
+    - success_rate_season
     - success
   
   drop:
-    - ydstogo
+    - ydstosuccess
     - yard_group
     - previous_success
     - QB
@@ -78,6 +81,7 @@ features:
     - offense_formation
 
   normalize:
+    - ydstogo
     - ydstosuccess
     - yardline_100
     - score_differential
@@ -92,9 +96,13 @@ features:
     - WR3
     - TE1 
     - TE2 
-    - TE3 
+    - TE3
+    - pass_run_ratio
     - pass_yards_season
     - rush_yards_season
+    - conversion_rate_season
+    - sack_rate_season
+    - success_rate_season
 
   target:
     - success

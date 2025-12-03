@@ -2,12 +2,12 @@
 file: clean_11_21.csv
 input_dir: "data/cleaned/"
 players_dir: "data/processed/matched_ratings.csv"
-teams_dir: "data/raw/season/team_year_pass_run_stats.csv"
+teams_dir: "data/raw/season/team_year_stats.csv"
 output_dir: "data/interim/"
 log_dir: "logs"
 
-bin_size: 5
-bin_count: 5
+bin_size: 2
+bin_count: 10
 
 features:
   toggles:
@@ -22,4 +22,4 @@ features:
     build_players: true
     build_teams: true
   values:
-    win_trim: .00
+    win_trim: 0
