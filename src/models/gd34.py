@@ -1,44 +1,39 @@
-import numpy as np
 import pandas as pd
 from xgboost import XGBClassifier
 from sklearn.metrics import classification_report, roc_auc_score, roc_curve, confusion_matrix
 import matplotlib.pyplot as plt
 import sys
 import random
-
-def down_split(train, test):
-    train = train.copy()
-    test = test.copy()
-
-    train_1 = train[train['down'] == 1]
-    train_2 = train[train['down'] == 2]
-    train_34 = train[(train['down'] == 3) | (train['down'] == 4)]
-
-    test_1 = test[test['down'] == 1]
-    test_2 = test[test['down'] == 2]
-    test_34 = test[(test['down'] == 3) | (test['down'] == 4)]
-
-    return train_1, train_2, train_34, test_1, test_2, test_34
+import shap
+import yaml
 
 def model_train(train, test, file_number):
     train = train.copy()
     test = test.copy()
-
-    down = train['down'].iloc[0]
 
     train_X = train.drop(columns = ['nflverse_game_id', 'play_id', 'success'])
     train_y = train['success']
     test_X = test.drop(columns = ['nflverse_game_id', 'play_id', 'success'])
     test_y = test['success']
 
+    best_param_grid = {
+        'subsample': .95, 
+        'n_estimators': 300, 
+        'min_child_weight': 9, 
+        'max_depth': 5, 
+        'learning_rate': .1, 
+        'gamma': 3, 
+    }
+    pos = test_y.mean()
+    weight = (1-pos)/pos
+
     model = XGBClassifier(
-        n_estimators=300,
-        max_depth = None,
+        **best_param_grid,
         objective='binary:logistic',
         eval_metric='auc',
         tree_method='hist',
-        learning_rate = .05,
-        gamma=3
+        scale_pos_weight=weight,
+        random_state=42
     )
 
     model.fit(train_X, train_y)
@@ -47,8 +42,7 @@ def model_train(train, test, file_number):
     y_proba = model.predict_proba(test_X)[:,1]
     auc_score = roc_auc_score(test_y, y_proba)
 
-    down_str = 'DOWN ' + str(down)
-    print(f"{down_str:-^15}")
+    print(f"{'GD':-^15}")
     print(f"{'':-^15}")
     print(classification_report(test_y, y_preds))
     print("AUC:", auc_score)
@@ -59,7 +53,13 @@ def model_train(train, test, file_number):
     test['pred'] = y_preds
     test['prob'] = y_proba
 
-    test.to_csv(f'data/evals/down{down}_preds.csv')
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(train_X)
+    shap.summary_plot(shap_values, train_X)
+    plt.savefig(f"plots/shap_gd_34_{file_number}.png", dpi=300, bbox_inches='tight')
+    plt.close()
+
+    test.to_csv(f'data/evals/gd_preds_{file_number}.csv')
     X, Y, _ = roc_curve(test_y, y_proba)
 
     plt.figure(figsize=(8,6))
@@ -70,8 +70,17 @@ def model_train(train, test, file_number):
     plt.ylabel("True Positive Rate")
     plt.legend(loc="lower right")
     plt.grid(True)
-    plt.savefig(f'plots/roc_down{down}_{file_number}.png')
+    plt.savefig(f'plots/roc_gd_34_{file_number}.png')
     plt.close()
+
+    return {
+        'model':model,
+        'y_preds':y_preds,
+        'y_proba':y_proba,
+        'auc':auc_score,
+        'fpr':X,
+        'tpr':Y
+    }
 
 if __name__ == '__main__':
     try:
@@ -85,14 +94,14 @@ if __name__ == '__main__':
         print('❌ Unable to load file, please try again')
         sys.exit()
 
+    try:
+        with open("cfg/down.yml") as f:
+            cfg = yaml.safe_load(f)
+    except:
+        print('❌ Unable to load cfg, using all features instead of best')
+
     file_number = random.randint(1, 9999)
-    train1, train2, train34, test1, test2, test34 = down_split(train, test)
-    model_train(train1, test1, file_number)
-    model_train(train2, test2, file_number)
-    model_train(train34, test34, file_number)
+    train = train[(train['down'] == 3) | (train['down'] == 4)]
+    test = test[(test['down'] == 3) | (test['down'] == 4)]
 
-
-    
-
-
-
+    model_train(train, test, file_number)
