@@ -88,6 +88,7 @@ def win_trim(dataframe, win_perc=0):
     df = dataframe.copy()
     df = df[(win_perc < df['wp']) & (df['wp'] < (1-win_perc))]
     df = df.copy()
+    return df
 
 #Add ydstoscucces
 def yardstosuccess(dataframe):
@@ -251,8 +252,13 @@ def build_teams(dataframe, team_stat_dataframe):
         'pass_attempts':'pass_attempts_season',
         'rush_attempts':'rush_attempts_season',
         'pass_yards':'pass_yards_season',
-        'rush_yards':'rush_yards_season'
+        'rush_yards':'rush_yards_season',
+        'conversion_rate':'conversion_rate_season',
+        'sack_rate':'sack_rate_season',
+        'success_rate':'success_rate_season'
     })
+
+    t_df['season']+=1
 
     t_df.reset_index()
 
@@ -324,7 +330,6 @@ def engineer_features(cfg):
         print(f'🏈 Building Team Columns')
         df = build_teams(df, team_df)
         df = df.copy()
-
     if vals.get("win_trim", 0):
         print(f'🏈 Trimming plays based on WP: {vals.get("win_trim")}')
         df = win_trim(df, vals.get("win_trim"))
