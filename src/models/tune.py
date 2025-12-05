@@ -141,7 +141,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Optuna Tuning for ML Models")
     parser.add_argument("--model", type=str, required=True)
     parser.add_argument("--years", type=int, nargs="+", required=True)
-    parser.add_argument("--data", type=str, required=True)
+    parser.add_argument("--data", type=str, default='data/clean', help="CSV file containing features for prediction, defaults to data/clean")
     parser.add_argument("--trials", type=int, default=30)
     args = parser.parse_args()
 

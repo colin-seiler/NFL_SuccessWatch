@@ -40,8 +40,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--data",
         type=str,
-        required=True,
-        help="CSV file containing features for prediction"
+        default='data/clean',
+        help="CSV file containing features for prediction, defaults to data/clean"
     )
 
     args = parser.parse_args()
