@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import glob
 import sys
 import re
 from rapidfuzz import process, fuzz
@@ -11,7 +10,7 @@ warnings.simplefilter(action='ignore', category=pd.errors.DtypeWarning)
 
 MADDEN_PATH = "data/interim/madden_ratings.csv"
 PLAYER_PATH = "data/raw/players/nfl_players_2016_2024.csv"
-OUT_PATH = "data/processed/matched_ratings.csv"
+OUT_PATH = "data/processed/processed_ratings.csv"
 MADDEN_TO_UNI = {
     "QB": "QB",
     "HB": "RB",
@@ -108,6 +107,22 @@ def fuzzy_match_player(row, players_df):
     return None
 
 def clean():
+    try:
+        print(f"📂 Loading: {MADDEN_PATH}")
+        madden = pd.read_csv(MADDEN_PATH)
+        print("✅ File loaded!")
+    except:
+        print('❌ Madden file not loaded, please try again')
+        sys.exit()
+    try:
+        print(f"📂 Loading: {PLAYER_PATH}")
+        players = pd.read_csv(PLAYER_PATH)
+        print("✅ File loaded!")
+        print(len(players['player_id'].unique()))
+    except:
+        print('❌ Player file not loaded, please try again')
+        sys.exit()
+
     players['clean_name'] = players['full_name'].apply(normalize_name)
     madden['clean_name'] = madden['name'].apply(normalize_name)
     madden["std_pos"] = madden["position"].map(MADDEN_TO_UNI)
@@ -139,31 +154,14 @@ def clean():
     print("Total Madden rows:", len(madden))
     print("Exact matches:", merged["player_id"].notna().sum())
 
-    return players_with_ratings
-
-if __name__ == "__main__":
-    try:
-        print(f"📂 Loading: {MADDEN_PATH}")
-        madden = pd.read_csv(MADDEN_PATH)
-        print("✅ File loaded!")
-    except:
-        print('❌ Madden file not loaded, please try again')
-        sys.exit()
-    try:
-        print(f"📂 Loading: {PLAYER_PATH}")
-        players = pd.read_csv(PLAYER_PATH)
-        print("✅ File loaded!")
-        print(len(players['player_id'].unique()))
-    except:
-        print('❌ Player file not loaded, please try again')
-        sys.exit()
-
-    players_with_ratings = clean()
-
     try:
         players_with_ratings.to_csv(OUT_PATH, index=False)
-        print(f"💾 Saved players_with ratings to: {OUT_PATH}")
+        print(f"💾 Saved players_with ratings to: {OUT_PATH}\n")
     except:
-        print("Unable to save CSV to output path specified")
+        print("Unable to save CSV to output path specified\n")
+
+
+if __name__ == "__main__":
+    clean()
 
 

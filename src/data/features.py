@@ -265,11 +265,13 @@ def build_teams(dataframe, team_stat_dataframe):
     df = df.merge(t_df, how='left', on=['season','posteam'])
     return df
 
-def engineer_features(cfg):
+def engineer_features():
+    with open("cfg/features.yml") as f:
+        cfg = yaml.safe_load(f)
+
     toggles = cfg["features"]["toggles"]
     vals = cfg["features"]["values"]
 
-    filename = cfg['file']
     input_dir = cfg['input_dir']
     output_dir = cfg['output_dir']
     players_dir = cfg['players_dir']
@@ -279,7 +281,7 @@ def engineer_features(cfg):
     bin_size = cfg['bin_size']
     bin_count = cfg['bin_count']
 
-    read_file = input_dir+filename
+    read_file = input_dir
     try:
         print(f"📂 Loading: {read_file}")
         df = pd.read_csv(read_file, dtype={'personnel_num': 'string'}, low_memory=False)
@@ -295,7 +297,7 @@ def engineer_features(cfg):
         df = fix_personnel(df)
         df = df.copy()
     if toggles.get("build_ydstosuccess", False):
-        print(f'🏈 Building "ydstosuccess" Feature')
+        print(f'🏈 Building ydstosuccess Feature')
         df = yardstosuccess(df)
         df = df.copy()
     if toggles.get("build_fp_succ", False):
@@ -336,8 +338,7 @@ def engineer_features(cfg):
         df = df.copy()
 
     try:
-        timestamp = datetime.now().strftime("%m_%d")
-        out_file = f"featured_{timestamp}.csv"
+        out_file = f"processed_all.csv"
         output_path = output_dir+out_file
         df.to_csv(output_path, index=False)
         print(f"💾 Saved {out_file} to: {output_dir}")
@@ -346,8 +347,4 @@ def engineer_features(cfg):
     
 
 if __name__ == "__main__":
-    #CFG file is located at cfg/features.yml
-    with open("cfg/features.yml") as f:
-        cfg = yaml.safe_load(f)
-
-    engineer_features(cfg)
+    engineer_features()

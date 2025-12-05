@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import openpyxl
 import glob
 import sys
 from datetime import datetime
@@ -28,7 +27,9 @@ def load_files():
         print('❌ Files not loaded, please try again')
         sys.exit()
 
-def clean_data(files):
+def clean_data():
+    files = load_files()
+    
     temp_files = []
 
     for item in files:
@@ -65,17 +66,13 @@ def clean_data(files):
         
         temp_files.append(temp_df[['year','name','team','position','ovr']])
     
-    return temp_files
+    out = pd.DataFrame()
+    for item in temp_files:
+        out = pd.concat([out, item])
+    file_out = OUT_PATH+f'madden_ratings.csv'
+    out.to_csv(file_out, index=False)
+    print(f"💾 Saved madden_ratings.csv to: {OUT_PATH}\n")
     
         
 if __name__ == "__main__":
-    dfs = load_files()
-    out_dfs = clean_data(dfs)
-
-    out = pd.DataFrame()
-    for item in out_dfs:
-        out = pd.concat([out, item])
-
-    file_out = OUT_PATH+f'madden_ratings.csv'
-    out.to_csv(file_out, index=False)
-    print(f"💾 Saved madden_ratings.csv to: {OUT_PATH}")
+    clean_data()

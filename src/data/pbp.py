@@ -10,11 +10,11 @@ warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
 warnings.simplefilter(action='ignore', category=pd.errors.DtypeWarning)
 
 
-IN_PATH = "data/raw/pbp_data/"
-OUT_PATH = "data/cleaned/"
+IN_PATH = "data/raw/pbp/"
+OUT_PATH = "data/clean/"
 PBP = "/*.csv"
 
-def clean_data(off_personnel=True, add_features=True, off_form=True, off_form_personnel=True, wp_trim=0, input_path=IN_PATH+PBP):
+def clean_data(input_path=IN_PATH+PBP):
     try:
         dfs = []
         for file in sorted(glob.glob(input_path)):
@@ -74,18 +74,13 @@ def clean_data(off_personnel=True, add_features=True, off_form=True, off_form_pe
     df = df.drop(columns=drop_cols)
     df = df.copy()
 
-    shape = df.shape
-    print(f'\nNew DataFrame Size: {shape} \n')
-
-    
     try:
-        timestamp = datetime.now().strftime("%m_%d")
-        out_file = f"clean_{timestamp}.csv"
+        out_file = f"clean_pbp.csv"
         output_path = OUT_PATH+out_file
         df.to_csv(output_path, index=False)
-        print(f"💾 Saved {out_file} to: {OUT_PATH}")
+        print(f"💾 Saved pbp_clean to: {OUT_PATH}\n")
     except:
-        print("Unable to save CSV to output path specified")
+        print("Unable to save CSV to output path specified\n")
 
 if __name__ == "__main__":
     clean_data()
