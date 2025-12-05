@@ -28,7 +28,7 @@ def suggest_params(model_name, trial):
             "max_depth": trial.suggest_int("max_depth", 4, 30),
             "min_samples_split": trial.suggest_int("min_samples_split", 2, 10),
             "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 5),
-            "max_features": trial.suggest_categorical("max_features", ["auto", "sqrt", "log2"]),
+            "max_features": trial.suggest_categorical("max_features", [None, "sqrt", "log2"]),
             "class_weight": trial.suggest_categorical("class_weight", ["balanced", None])
         }
 
