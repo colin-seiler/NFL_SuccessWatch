@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--model_path", type=str, required=True)
     parser.add_argument("--years", type=int, nargs="+", required=True)
-    parser.add_argument("--data", type=str, default='data/clean', help="CSV file containing features for prediction, defaults to data/clean")
+    parser.add_argument("--data", type=str, default='data/processed/processed_all.csv', help="CSV file containing features for prediction, defaults to data/processed/processed_all.csv")
 
     args = parser.parse_args()
 
