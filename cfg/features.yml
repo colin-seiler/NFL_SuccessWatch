@@ -1,9 +1,8 @@
 # Config for feature extraction
-file: clean_11_21.csv
-input_dir: "data/cleaned/"
+input_dir: "data/clean/clean_pbp.csv"
 players_dir: "data/processed/matched_ratings.csv"
 teams_dir: "data/raw/season/team_year_stats.csv"
-output_dir: "data/interim/"
+output_dir: "data/processed/"
 log_dir: "logs"
 
 bin_size: 2
