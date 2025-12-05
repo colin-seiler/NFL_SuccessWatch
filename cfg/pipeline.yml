@@ -90,8 +90,7 @@ features:
     - WR2 
     - WR3
     - TE1 
-    - TE2 
-    - TE3
+    - TE2
     - pass_run_ratio
     - pass_yards_season
     - rush_yards_season
