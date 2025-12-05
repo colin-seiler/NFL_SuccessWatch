@@ -1,8 +1,6 @@
 # Ignore everything
 *
-src/models/__pycache__/**
-src/__pycache__/**
-src/data/__pycache__/**
+
 
 # Keep these folders and their internal .gitignore
 !data/
@@ -15,3 +13,8 @@ src/data/__pycache__/**
 !notebooks/
 !notebooks/**
 !models/
+
+src/**/__pycache__/
+src/**/__pycache__/**
+data/**/__pycache__/
+data/**/__pycache__/**
