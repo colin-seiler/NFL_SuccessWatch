@@ -16,6 +16,8 @@
 !.gitignore
 !README.md
 !requirements.txt
+!outputs/
+!outputs/**
 
 src/**/__pycache__/
 src/**/__pycache__/**

@@ -3,7 +3,7 @@ import os
 
 from src.models.pipeline import COLS, TARGET, DROP_COLS
 
-def load_df(path = "data/interim/featured_12_02.csv"):
+def load_df(path = "data/processed/processed_all.csv"):
     if not os.path.exists(path):
         raise FileNotFoundError(f"Processed data not found at: {path}")
     df = pd.read_csv(path)
@@ -12,9 +12,10 @@ def load_df(path = "data/interim/featured_12_02.csv"):
 def build_xy(df):
     return df[COLS].copy(), df[TARGET].values.ravel()
 
-def load_data(years, path="data/interim/featured_12_02.csv"):
+def load_data(years, path="data/processed/processed_all.csv"):
     df = load_df(path)
 
+    
     df = df[df["season"].isin(years)].copy()
     df = df[(df['down'] == 3) | (df['down'] == 4)]
 

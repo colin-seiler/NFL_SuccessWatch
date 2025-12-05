@@ -16,7 +16,7 @@ if (!dir.exists("pbp_data")) {
   dir.create("pbp_data")
 }
 
-years <- 2016:2024
+years <- 2016:2023
 
 for (year in years) {
   pbp_data <- load_participation(seasons = TRUE, include_pbp = TRUE)
@@ -83,3 +83,17 @@ If you would like to predict values or tune a model using optuna, changing some 
 python -m src.models.tune --model MODEL --years YEARS [--data DATA] [--trials TRIALS]
 python -m src.models.predict --model_path MODEL_PATH --years YEARS [--data DATA]
 ```
+
+## Recommended Code for Best Runs
+
+Here is an easy copy past of all codes to run and saves predictions vs ground truth in outputs/predictions/
+
+```Bash
+python -m src.data.build_data
+python -m src.models.tune --model xgboost --years 2016 2017 2018 2019 2020 2021 2022
+python -m src.models.evaluate --model_path model/xgboost_optuna --years 2016 2017 2018 2019 2020 2021 2022
+python -m src.models.evaluate --model_path model/xgboost_optuna --years 2023
+python -m src.models.predict --model_path model/xgboost_optuna --years 2023 --save
+```
+
+You can then combine this output with the processed_all.csv to get predictions and see how different features affected the model output

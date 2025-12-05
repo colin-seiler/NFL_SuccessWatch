@@ -1,14 +1,16 @@
 import argparse
 import joblib
+import pandas as pd
 from src.data.load_data import load_data
 
 def load_pipeline(model_path):
     return joblib.load(model_path)
 
-def predict(model_path, years, data_path):
+def predict(model_path, years, data_path, save=False):
     pipeline = load_pipeline(model_path)
 
     X, y = load_data(years, data_path)
+
     preds = pipeline.predict(X)
 
     probas = (
@@ -16,6 +18,15 @@ def predict(model_path, years, data_path):
         if hasattr(pipeline, "predict_proba")
         else None
     )
+
+    if save:
+        df = pd.DataFrame({
+            'y_true': y, 
+            'y_pred': preds, 
+            'y_prob': probas
+            })
+        save_path = model_path.split('.')[0].split('/')[-1]
+        df.to_csv(f'outputs/predictions/{save_path}_vals.csv')
 
     return preds, probas, X, y
 
@@ -44,13 +55,13 @@ if __name__ == "__main__":
         help="CSV file containing features for prediction, defaults to data/processed/processed_all.csv"
     )
 
+    parser.add_argument(
+        "--save",
+        action='store_true',
+        help='Save predictions and ground truth to files', 
+        required=False
+    )
+
     args = parser.parse_args()
 
-    preds, probas, X, y = predict(args.model_path, args.years, args.data)
-
-    print("\n🔮 Predictions (first 20):")
-    print(preds[:20])
-
-    if probas is not None:
-        print("\n📈 Probabilities (first 20):")
-        print(probas[:20])
+    preds, probas, X, y = predict(args.model_path, args.years, args.data, args.save)
