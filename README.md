@@ -36,6 +36,14 @@ We have provided the remaining smaller files for madden ratings and team statist
 
 ## Data Cleaning and Featuring
 
+First things first we need to install our requirements. Run the following commands:
+
+```Bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
 In bash, navigate to the project folder using cd where you replace path\to\ with your relevant path.
 
 ```Bash
