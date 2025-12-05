@@ -1,0 +1,10 @@
+n_estimators: 500
+criterion: "gini"
+max_depth: null
+min_samples_split: 2
+min_samples_leaf: 1
+max_features: "auto"   # or "sqrt"
+bootstrap: true
+n_jobs: -1
+random_state: 42
+class_weight: null
