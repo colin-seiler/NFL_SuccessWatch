@@ -38,9 +38,17 @@ We have provided the remaining smaller files for madden ratings and team statist
 
 First things first we need to install our requirements. Run the following commands:
 
+Mac:
 ```Bash
 python -m venv .venv
 source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+Windows:
+```Bash
+python -m venv .venv
+.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
