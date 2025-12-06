@@ -9,16 +9,24 @@ def update_yaml_config(model_name, best_params, cfg_path=None):
         elif model_name == 'random_forest':
             cfg_path = 'cfg/random_forest.yml'
         else:
-            cfg_path = 'cfg/{model_name}.yml'
+            cfg_path = f'cfg/{model_name}.yml'
 
-    # Load existing YAML
     with open(cfg_path, "r") as f:
         cfg = yaml.safe_load(f)
 
-    # Overwrite old params with tuned ones
+    if model_name == "ensemble":
+        best_params = {
+            "voting": best_params["voting"],
+            "weights": [
+                best_params["w_logreg"],
+                best_params["w_rf"],
+                best_params["w_xgb"]
+            ],
+            "n_jobs": -1
+        }
+
     cfg.update(best_params)
 
-    # Write back to YAML
     with open(cfg_path, "w") as f:
         yaml.safe_dump(cfg, f)
 
