@@ -88,7 +88,7 @@ python -m src.models.evaluate --model_path MODEL_PATH --years YEARS [--data DATA
 The values recommended for use in each argument are the following:
 
 ```Bash
---model_path -> model/xgboost_optuna
+--model_path -> models/xgboost_optuna.joblib
 --years -> 2023 2024
 --data -> data/processed/processed_all.csv
 ```
@@ -107,9 +107,9 @@ Here is an easy copy past of all codes to run and saves predictions vs ground tr
 ```Bash
 python -m src.data.build_data
 python -m src.models.tune --model xgboost --years 2016 2017 2018 2019 2020 2021 2022
-python -m src.models.evaluate --model_path model/xgboost_optuna --years 2016 2017 2018 2019 2020 2021 2022
-python -m src.models.evaluate --model_path model/xgboost_optuna --years 2023
-python -m src.models.predict --model_path model/xgboost_optuna --years 2023 --save
+python -m src.models.evaluate --model_path models/xgboost_optuna.joblib --years 2016 2017 2018 2019 2020 2021 2022
+python -m src.models.evaluate --model_path models/xgboost_optuna.joblib --years 2023
+python -m src.models.predict --model_path models/xgboost_optuna.joblib --years 2023 --save
 ```
 
 You can then combine this output with the processed_all.csv to get predictions and see how different features affected the model output
