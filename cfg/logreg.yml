@@ -1,9 +1,4 @@
-C: 0.059135140983157586
-class_weight: balanced
-fit_intercept: true
-l1_ratio: null
+C: 0.0022082418035487064
+class_weight: null
 max_iter: 2000
-n_jobs: -1
-penalty: l1
-random_state: 42
-solver: liblinear
+solver: saga
