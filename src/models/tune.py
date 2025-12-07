@@ -6,7 +6,7 @@ import optuna
 optuna.logging.set_verbosity(optuna.logging.ERROR)
 
 from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import f1_score, fbeta_score
+from sklearn.metrics import f1_score, fbeta_score, roc_auc_score
 
 from src.data.load_data import load_data
 from src.models.pipeline import build_pipeline
@@ -15,11 +15,6 @@ from src.utils import update_yaml_config
 
 import warnings
 warnings.filterwarnings("ignore")
-
-def build_model_with_params(model_name, params):
-
-    builder = MODEL_REGISTRY[model_name]
-    return builder(config_path=None, **params)
 
 def suggest_params(model_name, trial):
     if model_name == "random_forest":
@@ -44,32 +39,38 @@ def suggest_params(model_name, trial):
         }
 
     elif model_name == "logistic":
-        solver = trial.suggest_categorical(
-            "solver", ["lbfgs", "liblinear", "saga"]
-        )
-        if solver == "liblinear":
-            penalty = trial.suggest_categorical("penalty_liblinear", ["l1", "l2"])
-        elif solver == "lbfgs":
-            penalty = trial.suggest_categorical("penalty_lbfgs", ["l2", None])
-        elif solver == "saga":
-            penalty = trial.suggest_categorical("penalty_saga", ["l1", "l2", "elasticnet", None])
+        solver = trial.suggest_categorical("solver", ["lbfgs", "liblinear", "saga"])
 
-        if solver.startswith("lib") and penalty in ["l1", "l2"]:
-            chosen_penalty = penalty
+        pen_lbfgs     = trial.suggest_categorical("pen_lbfgs",     ["l2", None])
+        pen_liblinear = trial.suggest_categorical("pen_liblinear", ["l1", "l2"])
+        pen_saga      = trial.suggest_categorical("pen_saga",      ["l1", "l2", "elasticnet", None])
+
+        if solver == "lbfgs":
+            chosen_penalty = pen_lbfgs
+        elif solver == "liblinear":
+            chosen_penalty = pen_liblinear
         else:
-            chosen_penalty = penalty
+            chosen_penalty = pen_saga
 
-        l1_ratio = None
-        if chosen_penalty == "elasticnet":
+        if solver == "saga" and chosen_penalty == "elasticnet":
             l1_ratio = trial.suggest_float("l1_ratio", 0.0, 1.0)
+        else:
+            l1_ratio = None
 
         return {
             "C": trial.suggest_float("C", 0.001, 10.0, log=True),
             "solver": solver,
-            "penalty": penalty,
+            "penalty": chosen_penalty,
             "l1_ratio": l1_ratio,
             "class_weight": trial.suggest_categorical("class_weight", ["balanced", None]),
             "max_iter": 2000
+        }
+    elif model_name == "ensemble":
+        return {
+            "C": trial.suggest_float("C", 0.01, 10.0, log=True),
+            "penalty": trial.suggest_categorical("penalty", ["l2"]),
+            "passthrough": trial.suggest_categorical("passthrough", [False, True]),
+            "n_jobs": -1
         }
 
     else:
@@ -78,10 +79,16 @@ def suggest_params(model_name, trial):
 def objective(trial, model_name, X, y):
     params = suggest_params(model_name, trial)
     pipeline = build_pipeline(model_name)
-    pipeline.set_params(**{f"model__{k}": v for k, v in params.items()})
+    if model_name == "ensemble":
+        pipeline.set_params(
+            model__final_estimator__C=params["C"],
+            model__passthrough=params["passthrough"]
+        )
+    else:
+        pipeline.set_params(**{f"model__{k}": v for k, v in params.items()})
 
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    f_scores = []
+    eval_scores = []
 
     for train_idx, valid_idx in cv.split(X, y):
         X_train, X_valid = X.iloc[train_idx], X.iloc[valid_idx]
@@ -89,16 +96,18 @@ def objective(trial, model_name, X, y):
 
         pipeline.fit(X_train, y_train)
         preds = pipeline.predict(X_valid)
+        proba = pipeline.predict_proba(X_valid)[:, 1]
 
-        f_scores.append(fbeta_score(y_valid, preds, beta=.5))
 
-    return np.mean(f_scores)
+        eval_scores.append(roc_auc_score(y_valid, proba))
+
+    return np.mean(eval_scores)
 
 
 def tune(model_name, years, data_path, n_trials=30, save_dir="models/"):
     X, y = load_data(years, data_path)
 
-    study = optuna.create_study(direction="maximize")
+    study = optuna.create_study(direction="maximize", sampler=optuna.samplers.TPESampler(seed=42))
 
     pbar = tqdm(total=n_trials, desc=f"Tuning {model_name}", colour="cyan")
     def tqdm_callback(study, trial):
@@ -119,14 +128,21 @@ def tune(model_name, years, data_path, n_trials=30, save_dir="models/"):
     )
     pbar.close()
 
-    print("\n🏆 Best Trial:")
-    print(study.best_trial)
+    print("\n🏆 Best Trial Parameters Found!")
 
-    best_params = suggest_params(model_name, study.best_trial)
-    update_yaml_config(model_name, best_params)
+    best_params = study.best_trial.params
+    allowed_keys = {"C", "solver", "penalty", "l1_ratio", "class_weight", "max_iter"}
+    filtered_params = {k: v for k, v in best_params.items() if k in allowed_keys}
+    update_yaml_config(model_name, filtered_params)
     
     final_pipeline = build_pipeline(model_name)
-    final_pipeline.set_params(**{f"model__{k}": v for k, v in best_params.items()})
+    if model_name == "ensemble":
+        final_pipeline.set_params(
+            model__final_estimator__C=best_params["C"],
+            model__passthrough=best_params["passthrough"]
+        )
+    else:
+        final_pipeline.set_params(**{f"model__{k}": v for k, v in filtered_params.items()})
 
     final_pipeline.fit(X, y)
 

@@ -14,17 +14,6 @@ def update_yaml_config(model_name, best_params, cfg_path=None):
     with open(cfg_path, "r") as f:
         cfg = yaml.safe_load(f)
 
-    if model_name == "ensemble":
-        best_params = {
-            "voting": best_params["voting"],
-            "weights": [
-                best_params["w_logreg"],
-                best_params["w_rf"],
-                best_params["w_xgb"]
-            ],
-            "n_jobs": -1
-        }
-
     cfg.update(best_params)
 
     with open(cfg_path, "w") as f:
