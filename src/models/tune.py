@@ -19,8 +19,8 @@ warnings.filterwarnings("ignore")
 def suggest_params(model_name, trial):
     if model_name == "random_forest":
         params = {
-            "n_estimators": trial.suggest_int("n_estimators", 200, 1000),
-            "max_depth": trial.suggest_int("max_depth", 4, 30),
+            "n_estimators": trial.suggest_int("n_estimators", 200, 500),
+            "max_depth": trial.suggest_int("max_depth", 4, 20),
             "min_samples_split": trial.suggest_int("min_samples_split", 2, 10),
             "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 5),
             "max_features": trial.suggest_categorical("max_features", [None, "sqrt", "log2"]),
@@ -72,6 +72,35 @@ def suggest_params(model_name, trial):
             "class_weight": trial.suggest_categorical("class_weight", ["balanced", None]),
             "max_iter": 2000
         }
+    
+    elif model_name == 'svm':
+        kernel = trial.suggest_categorical("kernel", ["rbf", "linear", "poly", "sigmoid"])
+        if kernel in ["rbf", "poly", "sigmoid"]:
+            gamma = trial.suggest_categorical("gamma", ["scale", "auto"])
+        else:
+            gamma = "scale"
+        if kernel == "poly":
+            degree = trial.suggest_int("degree", 2, 5)
+        else:
+            degree = 3 
+        if kernel in ["poly", "sigmoid"]:
+            coef0 = trial.suggest_float("coef0", -1.0, 1.0)
+        else:
+            coef0 = 0.0
+
+        return {
+            "kernel": kernel,
+            "C": trial.suggest_float("C", 1e-3, 1e3, log=True),
+            "gamma": gamma,
+            "degree": degree,
+            "coef0": coef0,
+            "shrinking": trial.suggest_categorical("shrinking", [True, False]),
+            "tol": trial.suggest_float("tol", 1e-5, 1e-2, log=True),
+            "class_weight": trial.suggest_categorical("class_weight", [None, "balanced"]),
+            "probability": True,
+            "max_iter": -1
+        }
+    
     elif model_name == "ensemble":
         return {
             "C": trial.suggest_float("C", 0.01, 10.0, log=True),

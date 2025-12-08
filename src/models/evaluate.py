@@ -2,7 +2,6 @@ import argparse
 import joblib
 
 from sklearn.metrics import accuracy_score, f1_score, roc_auc_score, classification_report, confusion_matrix
-from src.data.load_data import load_data
 from src.models.predict import predict
 
 

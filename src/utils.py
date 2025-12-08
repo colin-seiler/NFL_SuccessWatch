@@ -8,6 +8,8 @@ def update_yaml_config(model_name, best_params, cfg_path=None):
             cfg_path = 'cfg/xgboost.yml'
         elif model_name == 'random_forest':
             cfg_path = 'cfg/random_forest.yml'
+        elif model_name == 'svm':
+            cfg_path = 'cfg/svm.yml'
         else:
             cfg_path = f'cfg/{model_name}.yml'
 

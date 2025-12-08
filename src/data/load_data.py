@@ -15,7 +15,6 @@ def build_xy(df):
 def load_data(years, path="data/processed/processed_all.csv"):
     df = load_df(path)
 
-    
     df = df[df["season"].isin(years)].copy()
     df = df[(df['down'] == 3) | (df['down'] == 4)]
 

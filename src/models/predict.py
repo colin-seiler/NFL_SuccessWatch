@@ -10,6 +10,7 @@ def predict(model_path, years, data_path, save=False):
     pipeline = load_pipeline(model_path)
 
     X, y = load_data(years, data_path)
+    orig_idx = X.index
 
     preds = pipeline.predict(X)
 
@@ -21,10 +22,12 @@ def predict(model_path, years, data_path, save=False):
 
     if save:
         df = pd.DataFrame({
+            'orig_index': orig_idx,
             'y_true': y, 
             'y_pred': preds, 
             'y_prob': probas
             })
+        df = df.sort_values("orig_index").reset_index(drop=True)
         save_path = model_path.split('.')[0].split('/')[-1]
         df.to_csv(f'outputs/predictions/{save_path}_vals.csv')
 
