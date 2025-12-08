@@ -18,14 +18,21 @@ warnings.filterwarnings("ignore")
 
 def suggest_params(model_name, trial):
     if model_name == "random_forest":
-        return {
+        params = {
             "n_estimators": trial.suggest_int("n_estimators", 200, 1000),
             "max_depth": trial.suggest_int("max_depth", 4, 30),
             "min_samples_split": trial.suggest_int("min_samples_split", 2, 10),
             "min_samples_leaf": trial.suggest_int("min_samples_leaf", 1, 5),
             "max_features": trial.suggest_categorical("max_features", [None, "sqrt", "log2"]),
-            "class_weight": trial.suggest_categorical("class_weight", ["balanced", None])
+            "class_weight": trial.suggest_categorical("class_weight", ["balanced", None]),
+            "bootstrap": trial.suggest_categorical("bootstrap", [True, False]),
         }
+        if params["bootstrap"]:
+            params["max_samples"] = trial.suggest_float("max_samples", 0.5, 1.0)
+        else:
+            params["max_samples"] = None
+
+        return params
 
     elif model_name == "xgboost":
         return {
@@ -46,13 +53,13 @@ def suggest_params(model_name, trial):
         pen_saga      = trial.suggest_categorical("pen_saga",      ["l1", "l2", "elasticnet", None])
 
         if solver == "lbfgs":
-            chosen_penalty = pen_lbfgs
+            penalty = pen_lbfgs
         elif solver == "liblinear":
-            chosen_penalty = pen_liblinear
+            penalty = pen_liblinear
         else:
-            chosen_penalty = pen_saga
+            penalty = pen_saga
 
-        if solver == "saga" and chosen_penalty == "elasticnet":
+        if solver == "saga" and penalty == "elasticnet":
             l1_ratio = trial.suggest_float("l1_ratio", 0.0, 1.0)
         else:
             l1_ratio = None
@@ -60,7 +67,7 @@ def suggest_params(model_name, trial):
         return {
             "C": trial.suggest_float("C", 0.001, 10.0, log=True),
             "solver": solver,
-            "penalty": chosen_penalty,
+            "penalty": penalty,
             "l1_ratio": l1_ratio,
             "class_weight": trial.suggest_categorical("class_weight", ["balanced", None]),
             "max_iter": 2000
@@ -69,7 +76,6 @@ def suggest_params(model_name, trial):
         return {
             "C": trial.suggest_float("C", 0.01, 10.0, log=True),
             "penalty": trial.suggest_categorical("penalty", ["l2"]),
-            "passthrough": trial.suggest_categorical("passthrough", [False, True]),
             "n_jobs": -1
         }
 
@@ -81,8 +87,7 @@ def objective(trial, model_name, X, y):
     pipeline = build_pipeline(model_name)
     if model_name == "ensemble":
         pipeline.set_params(
-            model__final_estimator__C=params["C"],
-            model__passthrough=params["passthrough"]
+            model__final_estimator__C=params["C"]
         )
     else:
         pipeline.set_params(**{f"model__{k}": v for k, v in params.items()})
@@ -138,8 +143,7 @@ def tune(model_name, years, data_path, n_trials=30, save_dir="models/"):
     final_pipeline = build_pipeline(model_name)
     if model_name == "ensemble":
         final_pipeline.set_params(
-            model__final_estimator__C=best_params["C"],
-            model__passthrough=best_params["passthrough"]
+            model__final_estimator__C=best_params["C"]
         )
     else:
         final_pipeline.set_params(**{f"model__{k}": v for k, v in filtered_params.items()})

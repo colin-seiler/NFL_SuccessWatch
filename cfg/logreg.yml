@@ -2,3 +2,6 @@ C: 0.0022082418035487064
 class_weight: null
 max_iter: 2000
 solver: saga
+l1_ratio: null
+penalty: null
+random_state: 42
