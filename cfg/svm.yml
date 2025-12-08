@@ -1,0 +1,10 @@
+kernel: "rbf"
+C: 1.0 
+gamma: "scale"     
+degree: 3      
+coef0: 0.0          
+shrinking: true
+tol: 0.001
+class_weight: null     
+probability: true      
+max_iter: -1 
