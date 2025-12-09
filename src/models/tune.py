@@ -133,7 +133,7 @@ def objective(trial, model_name, X, y):
         proba = pipeline.predict_proba(X_valid)[:, 1]
 
 
-        eval_scores.append(roc_auc_score(y_valid, proba))
+        eval_scores.append(fbeta_score(y_valid, preds, beta=.8))
 
     return np.mean(eval_scores)
 

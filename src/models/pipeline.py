@@ -1,7 +1,9 @@
 import yaml
 import pandas as pd
 import numpy as np
+import joblib
 from sklearn.linear_model import LogisticRegression
+from xgboost import XGBClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
@@ -23,6 +25,9 @@ DROP_COLS = config['features']['drop']
 CAT_COLS = config['features']['categorical']
 NUM_COLS = config['features']['normalize']
 LOG = config['log']
+
+def load_pipeline(model_path):
+    return joblib.load(model_path)
 
 def add_log_features(df):
     df = df.copy()
@@ -57,9 +62,9 @@ def build_ensemble(config_path="cfg/ensemble.yml"):
         cfg = yaml.safe_load(f)
 
     estimators = [
-        ("logreg", build_pipeline("logistic")),
-        ("rf", build_pipeline("random_forest")),
-        ("xgb", build_pipeline("xgboost"))
+        ("logreg", joblib.load('models/logistic_optuna.joblib')),
+        ("rf", joblib.load('models/random_forest_optuna.joblib')),
+        ("xgb", joblib.load('models/xgboost_optuna.joblib'))
     ]
 
     final_model = LogisticRegression(
@@ -74,7 +79,8 @@ def build_ensemble(config_path="cfg/ensemble.yml"):
         final_estimator=final_model,
         stack_method="predict_proba",
         passthrough=cfg.get("passthrough", False),
-        n_jobs=cfg.get("n_jobs", -1)
+        n_jobs=cfg.get("n_jobs", -1),
+        cv='prefit'
     )
 
     return Pipeline([
