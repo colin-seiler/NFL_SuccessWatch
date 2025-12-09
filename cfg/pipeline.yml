@@ -77,6 +77,8 @@ features:
     - offense_formation
 
   normalize:
+    - ydstogo
+    - yardline_100
     - score_differential
     - spread
     - total_line
@@ -99,4 +101,4 @@ features:
   target:
     - success
 
-log: true
+log: false
