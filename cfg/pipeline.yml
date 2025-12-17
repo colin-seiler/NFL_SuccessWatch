@@ -1,0 +1,104 @@
+features:
+  keep:
+    - nflverse_game_id
+    - play_id
+    - season
+    - down
+    - ydstogo
+    - ydstosuccess
+    - yard_group
+    - yardline_100
+    - previous_success
+    - offense_formation
+    - defenders_in_box
+    - personnel_num
+    - extra_lineman_flag
+    - QB
+    - RB
+    - TE
+    - WR
+    - OL
+    - O_OTHER
+    - DL
+    - LB
+    - DB
+    - D_OTHER
+    - home
+    - score_differential
+    - spread
+    - total_line
+    - qtr
+    - quarter_seconds_remaining
+    - QB1
+    - QB2 
+    - QB3 
+    - RB1 
+    - RB2 
+    - RB3 
+    - RB4 
+    - WR1 
+    - WR2 
+    - WR3 
+    - WR4 
+    - WR5 
+    - TE1 
+    - TE2 
+    - TE3 
+    - TE4
+    - pass_yards_season
+    - rush_yards_season
+    - pass_run_ratio
+    - conversion_rate_season
+    - sack_rate_season
+    - success_rate_season
+    - previous_success
+  
+  drop:
+    - nflverse_game_id
+    - play_id
+    - season
+    - ydstosuccess
+    - yard_group
+    - previous_success
+    - QB
+    - QB3
+    - RB3
+    - RB4
+    - TE3
+    - TE4
+    - WR4
+    - WR5
+    - O_OTHER
+    - D_OTHER
+    - personnel_num
+    - extra_lineman_flag
+
+  categorical:
+    - offense_formation
+
+  normalize:
+    - ydstogo
+    - yardline_100
+    - score_differential
+    - spread
+    - total_line
+    - QB1
+    - QB2
+    - RB1 
+    - RB2
+    - WR1 
+    - WR2 
+    - WR3
+    - TE1 
+    - TE2
+    - pass_run_ratio
+    - pass_yards_season
+    - rush_yards_season
+    - conversion_rate_season
+    - sack_rate_season
+    - success_rate_season
+
+  target:
+    - success
+
+log: false

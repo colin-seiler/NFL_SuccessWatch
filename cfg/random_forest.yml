@@ -1,0 +1,9 @@
+bootstrap: true
+class_weight: balanced
+max_depth: 10
+max_features: null
+max_samples: null
+min_samples_leaf: 5
+min_samples_split: 10
+n_estimators: 300
+random_state: 42

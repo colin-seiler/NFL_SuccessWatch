@@ -1,0 +1,24 @@
+# Config for feature extraction
+input_dir: "data/clean/clean_pbp.csv"
+players_dir: "data/processed/matched_ratings.csv"
+teams_dir: "data/raw/season/team_year_stats.csv"
+output_dir: "data/processed/"
+log_dir: "logs"
+
+bin_size: 2
+bin_count: 10
+
+features:
+  toggles:
+    build_personnel: true
+    build_ydstosuccess: true
+    build_fp_succ: true
+    build_f_succ: true
+    build_yardbins: true
+    build_prev: true
+    build_home: true
+    build_spread: true
+    build_players: true
+    build_teams: true
+  values:
+    win_trim: 0
