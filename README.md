@@ -89,8 +89,7 @@ The values recommended for use in each argument are the following:
 
 ```Bash
 --model_path -> models/xgboost_optuna.joblib
---years -> 2023 2024
---data -> data/processed/processed_all.csv
+--years -> 2023
 ```
 
 If you would like to predict values or tune a model using optuna, changing some feature or updating some feature list, we also have the following code:
@@ -102,7 +101,7 @@ python -m src.models.predict --model_path MODEL_PATH --years YEARS [--data DATA]
 
 ## Recommended Code for Best Runs
 
-Here is an easy copy past of all codes to run and saves predictions vs ground truth in outputs/predictions/
+Here is an easy copy paste of all codes to run and saves predictions vs ground truth in outputs/predictions/
 
 ```Bash
 python -m src.data.build_data
@@ -112,4 +111,14 @@ python -m src.models.evaluate --model_path models/xgboost_optuna.joblib --years 
 python -m src.models.predict --model_path models/xgboost_optuna.joblib --years 2023 --save
 ```
 
-You can then combine this output with the processed_all.csv to get predictions and see how different features affected the model output
+You can also use this code to run the ensemble method, the final line will save outputs if you wish to merge these and compare them in our plots and feature importance notebooks.
+
+```Bash
+python -m src.data.build_data
+python -m src.models.tune --model logistic --years 2016 2017 2018 2019 2020
+python -m src.models.tune --model xgboost --years 2016 2017 2018 2019 2020
+python -m src.models.tune --model random_forest --years 2016 2017 2018 2019 2020
+python -m src.models.tune --model ensemble --years 2021 2022
+python -m src.models.evaluate --model_path models/ensemble_optuna.joblib --years 2023
+python -m src.models.predict --model_path models/xgboost_optuna.joblib --years 2023 --save
+```
