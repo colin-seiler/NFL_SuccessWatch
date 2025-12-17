@@ -18,6 +18,8 @@
 !requirements.txt
 !outputs/
 !outputs/**
+!poster.pdf
+!research_paper.pdf
 
 src/**/__pycache__/
 src/**/__pycache__/**
